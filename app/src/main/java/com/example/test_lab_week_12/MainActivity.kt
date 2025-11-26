@@ -47,9 +47,8 @@ class MainActivity : AppCompatActivity() {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
                     // collect the list of movies from the StateFlow
-                    movieViewModel.popularMovies.collect {
+                    movieViewModel.filteredMovies.collect { movies ->
                         // add the list of movies to the adapter
-                            movies ->
                         movieAdapter.addMovies(movies)
                     }
                 }

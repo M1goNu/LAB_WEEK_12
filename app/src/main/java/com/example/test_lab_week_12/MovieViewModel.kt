@@ -6,25 +6,44 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import com.example.test_lab_week_12.model.Movie
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
+import java.util.Calendar
 
 class MovieViewModel(private val movieRepository: MovieRepository)
     : ViewModel() {
     init {
         fetchPopularMovies()
     }
-    // define the StateFlow in replace of the LiveData
-    // a StateFlow is an observable Flow that emits state updates to the collectors
-    // MutableStateFlow is a StateFlow that you can change the value
-    private val _popularMovies = MutableStateFlow(
-        emptyList<Movie>()
-    )
+    private val _popularMovies = MutableStateFlow(emptyList<Movie>())
     val popularMovies: StateFlow<List<Movie>> = _popularMovies
 
     private val _error = MutableStateFlow("")
     val error: StateFlow<String> = _error
 
+    private val currentYear = Calendar.getInstance().get(Calendar.YEAR).toString()
+
+    val filteredMovies: StateFlow<List<Movie>> =
+        popularMovies
+            .map { movies ->
+                movies
+                    .filter { movie ->
+                        movie.releaseDate?.startsWith(currentYear) == true
+                    }
+                    .sortedByDescending { it.popularity }
+            }
+            .stateIn(
+                viewModelScope,
+                SharingStarted.WhileSubscribed(),
+                emptyList()
+            )
+
+    // define the StateFlow in replace of the LiveData
+    // a StateFlow is an observable Flow that emits state updates to the collectors
+    // MutableStateFlow is a StateFlow that you can change the value
     // fetch movies from the API
     private fun fetchPopularMovies() {
         // launch a coroutine in viewModelScope

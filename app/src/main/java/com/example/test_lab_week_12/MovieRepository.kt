@@ -10,7 +10,6 @@ import kotlinx.coroutines.flow.flowOn
 class MovieRepository(private val movieService: MovieService) {
     private val apiKey = "3eb1d95488ec7be2ff7b7a0c0a92f0f1"
 
-
     // fetch movies from the API
     // this function returns a Flow of Movie objects
     // a Flow is a type of coroutine that can emit multiple values
@@ -22,5 +21,4 @@ class MovieRepository(private val movieService: MovieService) {
             // use Dispatchers.IO to run this coroutine on a shared pool of threads
         }.flowOn(Dispatchers.IO)
     }
-
 }
